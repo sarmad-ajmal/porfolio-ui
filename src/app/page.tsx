@@ -3,6 +3,7 @@ import UnderConstruction from "@/components/under_development";
 import Image from "next/image";
 import Link from "next/link";
 import TypeIt from "typeit-react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export default function Home() {
   return (
@@ -49,6 +50,7 @@ export default function Home() {
           />
         </Link>
       </div>
+      <SpeedInsights />
     </main>
   );
 }
