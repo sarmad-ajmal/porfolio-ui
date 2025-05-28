@@ -1,11 +1,19 @@
 "use client";
-import UnderConstruction from "@/components/under_development";
+import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import TypeIt from "typeit-react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import LogRocket from "logrocket";
+
+import UnderConstruction from "@/components/under_development";
 
 export default function Home() {
+  useEffect(() => {
+    if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_LOGROCKET_APP_ID) {
+      LogRocket.init(process.env.NEXT_PUBLIC_LOGROCKET_APP_ID);
+    }
+  }, []);
   return (
     <main className="flex max-h-screen flex-col items-center justify-between p-12">
       <UnderConstruction />
