@@ -1,14 +1,35 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
-``;
 import "./globals.css";
+import { Providers } from "./providers";
 
-const inter = Inter({ subsets: ["latin"] });
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Sarmad Ajmal - Portfolio",
-  description: "Full Stack Developer",
+  title: "Sarmad Ajmal | Senior Full-Stack Developer",
+  description:
+    "Senior Full-Stack Developer with 6+ years of experience building scalable SaaS applications using React, Node.js, and AWS.",
+  keywords: [
+    "Full-Stack Developer",
+    "React",
+    "Node.js",
+    "AWS",
+    "TypeScript",
+    "Next.js",
+  ],
 };
 
 export default function RootLayout({
@@ -18,7 +39,11 @@ export default function RootLayout({
 }>) {
   const G_TAG = process.env.NEXT_PUBLIC_G_TAG;
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <Script
           async
@@ -30,12 +55,14 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-          
+
             gtag('config', '${G_TAG}');
         `}
         </Script>
       </head>
-      <body className={inter.className}>{children}</body>
+      <body className="font-sans antialiased">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
