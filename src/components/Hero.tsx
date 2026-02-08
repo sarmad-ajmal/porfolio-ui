@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Greeting } from "./Greeting";
-import { ArrowDown, Mail, Linkedin } from "lucide-react";
+import { ArrowDown, Linkedin, Github, Twitter } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export function Hero() {
@@ -218,13 +218,15 @@ export function Hero() {
           transition={{ duration: 0.6, delay: 1 }}
         >
           <motion.a
-            href="mailto:hola.sarmad@gmail.com"
+            href="https://github.com/sarmad-ajmal"
+            target="_blank"
+            rel="noopener noreferrer"
             className="group relative p-3 rounded-full bg-light-surface/50 dark:bg-dark-surface/50 backdrop-blur-sm border border-light-border/50 dark:border-dark-border/50 hover:border-light-accent dark:hover:border-dark-accent transition-colors z-20"
             whileHover={{ scale: 1.1, rotate: 5 }}
             whileTap={{ scale: 0.9 }}
-            aria-label="Email"
+            aria-label="GitHub"
           >
-            <Mail className="w-5 h-5 text-light-text-secondary dark:text-dark-text-secondary group-hover:text-light-accent dark:group-hover:text-dark-accent transition-colors" />
+            <Github className="w-5 h-5 text-light-text-secondary dark:text-dark-text-secondary group-hover:text-light-accent dark:group-hover:text-dark-accent transition-colors" />
           </motion.a>
           <motion.a
             href="https://linkedin.com/in/sarmad-ajmal"
@@ -236,6 +238,17 @@ export function Hero() {
             aria-label="LinkedIn"
           >
             <Linkedin className="w-5 h-5 text-light-text-secondary dark:text-dark-text-secondary group-hover:text-light-accent dark:group-hover:text-dark-accent transition-colors" />
+          </motion.a>
+          <motion.a
+            href="https://twitter.com/SarmadAjmal"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative p-3 rounded-full bg-light-surface/50 dark:bg-dark-surface/50 backdrop-blur-sm border border-light-border/50 dark:border-dark-border/50 hover:border-light-accent dark:hover:border-dark-accent transition-colors z-20"
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            whileTap={{ scale: 0.9 }}
+            aria-label="Twitter"
+          >
+            <Twitter className="w-5 h-5 text-light-text-secondary dark:text-dark-text-secondary group-hover:text-light-accent dark:group-hover:text-dark-accent transition-colors" />
           </motion.a>
         </motion.div>
       </div>
