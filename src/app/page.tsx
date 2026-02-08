@@ -12,6 +12,9 @@ import { Certifications } from "@/components/Certifications";
 import { Contact } from "@/components/Contact";
 import { Footer } from "@/components/Footer";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { CustomCursor } from "@/components/CustomCursor";
+import { ScrollProgress } from "@/components/ScrollProgress";
+import { AvailabilityBadge } from "@/components/AvailabilityBadge";
 
 export default function Home() {
   useEffect(() => {
@@ -22,6 +25,10 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-light-bg dark:bg-dark-bg">
+      <CustomCursor />
+      <ScrollProgress />
+      <AvailabilityBadge />
+
       <div className="fixed top-6 right-6 z-50">
         <ThemeToggle />
       </div>
