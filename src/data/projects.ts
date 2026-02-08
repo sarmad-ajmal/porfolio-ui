@@ -67,22 +67,6 @@ export const projects: Project[] = [
     impact: "Enabled coordinated outbreak management at national scale",
   },
   {
-    id: "elearning-platform",
-    title: "E-Learning Platform (MOOC)",
-    description:
-      "Massive open online course platform with video streaming, interactive quizzes, and progress tracking for thousands of concurrent learners.",
-    tech: [
-      "React.js",
-      "Node.js",
-      "PostgreSQL",
-      "Redis",
-      "AWS S3",
-      "Lambda",
-    ],
-    role: "Full-Stack Developer",
-    impact: "Delivered scalable platform supporting thousands of learners",
-  },
-  {
     id: "crm-solution",
     title: "Customer Relationship Management",
     description:
