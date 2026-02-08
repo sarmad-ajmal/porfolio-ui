@@ -40,3 +40,13 @@ html {
     transition: transform 0.2s ease-out;
   }
 }
+
+/* Mascot idle floating animation */
+@keyframes mascot-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.mascot-float {
+  animation: mascot-float 3s ease-in-out infinite;
+}

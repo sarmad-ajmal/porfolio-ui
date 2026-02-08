@@ -1,8 +1,4 @@
-"use client";
-
-import { useEffect } from "react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import LogRocket from "logrocket";
 import { Hero } from "@/components/Hero";
 import { About } from "@/components/About";
 import { Skills } from "@/components/Skills";
@@ -11,28 +7,16 @@ import { Experience } from "@/components/Experience";
 import { Certifications } from "@/components/Certifications";
 import { Contact } from "@/components/Contact";
 import { Footer } from "@/components/Footer";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { CustomCursor } from "@/components/CustomCursor";
-import { ScrollProgress } from "@/components/ScrollProgress";
-import { AvailabilityBadge } from "@/components/AvailabilityBadge";
+import { ClientProviders } from "@/components/ClientProviders";
 
+// Server Component - better for SEO and performance
 export default function Home() {
-  useEffect(() => {
-    if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_LOGROCKET_APP_ID) {
-      LogRocket.init(process.env.NEXT_PUBLIC_LOGROCKET_APP_ID);
-    }
-  }, []);
-
   return (
     <main className="min-h-screen bg-light-bg dark:bg-dark-bg">
-      <CustomCursor />
-      <ScrollProgress />
-      <AvailabilityBadge />
+      {/* Client-side interactive components */}
+      <ClientProviders />
 
-      <div className="fixed top-6 right-6 z-50">
-        <ThemeToggle />
-      </div>
-
+      {/* Main content - can be server-rendered */}
       <Hero />
       <About />
       <Skills />
@@ -42,6 +26,7 @@ export default function Home() {
       <Contact />
       <Footer />
 
+      {/* Performance monitoring */}
       <SpeedInsights />
     </main>
   );

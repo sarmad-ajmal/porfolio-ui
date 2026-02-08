@@ -2,97 +2,124 @@
 
 import { motion } from "framer-motion";
 import { Greeting } from "./Greeting";
-import { ArrowDown, Linkedin, Github, Twitter } from "lucide-react";
-import { useState, useEffect } from "react";
+import { ArrowDown, Linkedin as LinkedinIcon, Github as GithubIcon, Twitter as TwitterIcon } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { throttle, prefersReducedMotion } from "@/utils/performance";
 
 export function Hero() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const reducedMotion = prefersReducedMotion();
+  const heroRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth - 0.5) * 20,
-        y: (e.clientY / window.innerHeight - 0.5) * 20,
+    // Skip parallax on reduced motion preference
+    if (reducedMotion) return;
+
+    // Throttle to ~60fps for better performance
+    const handleMouseMove = throttle((e: MouseEvent) => {
+      // Use requestAnimationFrame for smooth updates
+      requestAnimationFrame(() => {
+        setMousePosition({
+          x: (e.clientX / window.innerWidth - 0.5) * 20,
+          y: (e.clientY / window.innerHeight - 0.5) * 20,
+        });
       });
-    };
+    }, 16); // ~60fps
+
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+  }, [reducedMotion]);
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-light-bg via-light-surface to-light-bg dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg">
-      {/* Enhanced animated background with mesh gradient */}
+    <section
+      id="hero"
+      ref={heroRef}
+      className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-light-bg via-light-surface to-light-bg dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg"
+    >
+      {/* Enhanced animated background with mesh gradient - optimized for performance */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Mesh gradient blobs */}
-        <motion.div
-          className="absolute top-0 left-0 w-[800px] h-[800px] opacity-20"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%)",
-            filter: "blur(80px)",
-          }}
-          animate={{
-            x: [0, 100, 0],
-            y: [0, 50, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute bottom-0 right-0 w-[600px] h-[600px] opacity-20"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 70%)",
-            filter: "blur(80px)",
-          }}
-          animate={{
-            x: [0, -50, 0],
-            y: [0, -80, 0],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-1/2 w-[500px] h-[500px] opacity-15"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(129, 140, 248, 0.3) 0%, transparent 70%)",
-            filter: "blur(60px)",
-            transform: "translate(-50%, -50%)",
-          }}
-          animate={{
-            scale: [1, 1.3, 1],
-            rotate: [0, 180, 360],
-          }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-        />
+        {/* Mesh gradient blobs - reduced blur for better performance */}
+        {!reducedMotion && (
+          <>
+            <motion.div
+              className="absolute top-0 left-0 w-[800px] h-[800px] opacity-20"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%)",
+                filter: "blur(60px)", // Reduced from 80px
+                willChange: "transform", // GPU acceleration hint
+              }}
+              animate={{
+                x: [0, 100, 0],
+                y: [0, 50, 0],
+                scale: [1, 1.1, 1],
+              }}
+              transition={{
+                duration: 20,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            <motion.div
+              className="absolute bottom-0 right-0 w-[600px] h-[600px] opacity-20"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 70%)",
+                filter: "blur(60px)", // Reduced from 80px
+                willChange: "transform",
+              }}
+              animate={{
+                x: [0, -50, 0],
+                y: [0, -80, 0],
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                duration: 25,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            <motion.div
+              className="absolute top-1/2 left-1/2 w-[500px] h-[500px] opacity-15"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(129, 140, 248, 0.3) 0%, transparent 70%)",
+                filter: "blur(50px)", // Reduced from 60px
+                transform: "translate(-50%, -50%)",
+                willChange: "transform",
+              }}
+              animate={{
+                scale: [1, 1.3, 1],
+                rotate: [0, 180, 360],
+              }}
+              transition={{
+                duration: 30,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+            />
+          </>
+        )}
 
-        {/* Floating geometric shapes with parallax */}
+        {/* Floating geometric shapes with parallax - optimized */}
         <motion.div
           className="absolute top-20 left-[10%] w-32 h-32 border border-light-accent/20 dark:border-dark-accent/20 rounded-lg"
           style={{
             transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)`,
+            willChange: reducedMotion ? "auto" : "transform",
           }}
-          animate={{
-            rotate: [0, 360],
-            y: [0, -20, 0],
-          }}
+          animate={
+            reducedMotion
+              ? false
+              : {
+                  rotate: [0, 360],
+                  y: [0, -20, 0],
+                }
+          }
           transition={{
             rotate: { duration: 20, repeat: Infinity, ease: "linear" },
             y: { duration: 5, repeat: Infinity, ease: "easeInOut" },
@@ -103,11 +130,16 @@ export function Hero() {
           style={{
             transform: `translate(${mousePosition.x * 1.5}px, ${mousePosition.y * 1.5}px)`,
             clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+            willChange: reducedMotion ? "auto" : "transform",
           }}
-          animate={{
-            rotate: [0, -360],
-            scale: [1, 1.2, 1],
-          }}
+          animate={
+            reducedMotion
+              ? false
+              : {
+                  rotate: [0, -360],
+                  scale: [1, 1.2, 1],
+                }
+          }
           transition={{
             rotate: { duration: 15, repeat: Infinity, ease: "linear" },
             scale: { duration: 4, repeat: Infinity, ease: "easeInOut" },
@@ -117,11 +149,16 @@ export function Hero() {
           className="absolute top-1/3 right-[20%] w-16 h-16 rounded-full border border-light-accent/30 dark:border-dark-accent/30"
           style={{
             transform: `translate(${mousePosition.x * 0.8}px, ${mousePosition.y * 0.8}px)`,
+            willChange: reducedMotion ? "auto" : "transform",
           }}
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.3, 0.6, 0.3],
-          }}
+          animate={
+            reducedMotion
+              ? false
+              : {
+                  scale: [1, 1.3, 1],
+                  opacity: [0.3, 0.6, 0.3],
+                }
+          }
           transition={{
             duration: 6,
             repeat: Infinity,
@@ -226,7 +263,7 @@ export function Hero() {
             whileTap={{ scale: 0.9 }}
             aria-label="GitHub"
           >
-            <Github className="w-5 h-5 text-light-text-secondary dark:text-dark-text-secondary group-hover:text-light-accent dark:group-hover:text-dark-accent transition-colors" />
+            <GithubIcon className="w-5 h-5 text-light-text-secondary dark:text-dark-text-secondary group-hover:text-light-accent dark:group-hover:text-dark-accent transition-colors" />
           </motion.a>
           <motion.a
             href="https://linkedin.com/in/sarmad-ajmal"
@@ -237,7 +274,7 @@ export function Hero() {
             whileTap={{ scale: 0.9 }}
             aria-label="LinkedIn"
           >
-            <Linkedin className="w-5 h-5 text-light-text-secondary dark:text-dark-text-secondary group-hover:text-light-accent dark:group-hover:text-dark-accent transition-colors" />
+            <LinkedinIcon className="w-5 h-5 text-light-text-secondary dark:text-dark-text-secondary group-hover:text-light-accent dark:group-hover:text-dark-accent transition-colors" />
           </motion.a>
           <motion.a
             href="https://twitter.com/SarmadAjmal"
@@ -248,7 +285,7 @@ export function Hero() {
             whileTap={{ scale: 0.9 }}
             aria-label="Twitter"
           >
-            <Twitter className="w-5 h-5 text-light-text-secondary dark:text-dark-text-secondary group-hover:text-light-accent dark:group-hover:text-dark-accent transition-colors" />
+            <TwitterIcon className="w-5 h-5 text-light-text-secondary dark:text-dark-text-secondary group-hover:text-light-accent dark:group-hover:text-dark-accent transition-colors" />
           </motion.a>
         </motion.div>
       </div>
@@ -270,22 +307,25 @@ export function Hero() {
         <ArrowDown className="w-6 h-6 text-light-text-secondary/50 dark:text-dark-text-secondary/50" />
       </motion.div>
 
-      {/* Scan line effect */}
-      <motion.div
-        className="absolute inset-0 pointer-events-none opacity-[0.02]"
-        style={{
-          background:
-            "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(99, 102, 241, 0.1) 2px, rgba(99, 102, 241, 0.1) 4px)",
-        }}
-        animate={{
-          y: [0, -4],
-        }}
-        transition={{
-          duration: 0.1,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
+      {/* Scan line effect - disabled on reduced motion */}
+      {!reducedMotion && (
+        <motion.div
+          className="absolute inset-0 pointer-events-none opacity-[0.02]"
+          style={{
+            background:
+              "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(99, 102, 241, 0.1) 2px, rgba(99, 102, 241, 0.1) 4px)",
+            willChange: "transform",
+          }}
+          animate={{
+            y: [0, -4],
+          }}
+          transition={{
+            duration: 0.1,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        />
+      )}
     </section>
   );
 }
