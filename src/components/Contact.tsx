@@ -26,7 +26,7 @@ export function Contact() {
           viewport={{ once: true }}
         >
           Available for freelance projects and full-time opportunities.
-          Let's build something amazing together!
+          Let&apos;s build something amazing together!
         </motion.p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-8">
