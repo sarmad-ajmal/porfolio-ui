@@ -1,63 +1,32 @@
-"use client";
-import { useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import TypeIt from "typeit-react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import LogRocket from "logrocket";
+import { Hero } from "@/components/Hero";
+import { About } from "@/components/About";
+import { Skills } from "@/components/Skills";
+import { Projects } from "@/components/Projects";
+import { Experience } from "@/components/Experience";
+import { Certifications } from "@/components/Certifications";
+import { Contact } from "@/components/Contact";
+import { Footer } from "@/components/Footer";
+import { ClientProviders } from "@/components/ClientProviders";
 
-import UnderConstruction from "@/components/under_development";
-
+// Server Component - better for SEO and performance
 export default function Home() {
-  useEffect(() => {
-    if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_LOGROCKET_APP_ID) {
-      LogRocket.init(process.env.NEXT_PUBLIC_LOGROCKET_APP_ID);
-    }
-  }, []);
   return (
-    <main className="flex max-h-screen flex-col items-center justify-between p-12">
-      <UnderConstruction />
-      <div className="font-medium text-2xl font-mono text-cyan-700">
-        <TypeIt>Something amazing is on its way...</TypeIt>
-      </div>
-      <div className="flex justify-center items-center mt-3">
-        <Link
-          href={"https://github.com/sarmad-ajmal"}
-          target="_blank"
-          className="pr-5"
-        >
-          <Image
-            src="/assets/images/github.svg"
-            alt="github"
-            width={50}
-            height={50}
-          />
-        </Link>
-        <Link
-          href={"https://www.linkedin.com/in/sarmad-ajmal/"}
-          target="_blank"
-          className="pr-5"
-        >
-          <Image
-            src="/assets/images/linkedin.svg"
-            alt="linkedin"
-            width={50}
-            height={50}
-          />
-        </Link>
-        <Link
-          href={"https://twitter.com/SarmadAjmal"}
-          target="_blank"
-          className="pr-5"
-        >
-          <Image
-            src="/assets/images/twitter.svg"
-            alt="twitter"
-            width={50}
-            height={50}
-          />
-        </Link>
-      </div>
+    <main className="min-h-screen bg-light-bg dark:bg-dark-bg">
+      {/* Client-side interactive components */}
+      <ClientProviders />
+
+      {/* Main content - can be server-rendered */}
+      <Hero />
+      <About />
+      <Skills />
+      <Projects />
+      <Experience />
+      <Certifications />
+      <Contact />
+      <Footer />
+
+      {/* Performance monitoring */}
       <SpeedInsights />
     </main>
   );

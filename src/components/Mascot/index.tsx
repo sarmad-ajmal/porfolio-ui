@@ -1,0 +1,1 @@
+export { MascotContainer } from "./MascotContainer";
