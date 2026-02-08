@@ -212,14 +212,14 @@ export function Hero() {
         </motion.div>
 
         <motion.div
-          className="flex gap-6 justify-center items-center mt-10"
+          className="flex gap-6 justify-center items-center mt-10 mb-20"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 1 }}
         >
           <motion.a
             href="mailto:hola.sarmad@gmail.com"
-            className="group relative p-3 rounded-full bg-light-surface/50 dark:bg-dark-surface/50 backdrop-blur-sm border border-light-border/50 dark:border-dark-border/50 hover:border-light-accent dark:hover:border-dark-accent transition-colors"
+            className="group relative p-3 rounded-full bg-light-surface/50 dark:bg-dark-surface/50 backdrop-blur-sm border border-light-border/50 dark:border-dark-border/50 hover:border-light-accent dark:hover:border-dark-accent transition-colors z-20"
             whileHover={{ scale: 1.1, rotate: 5 }}
             whileTap={{ scale: 0.9 }}
             aria-label="Email"
@@ -230,7 +230,7 @@ export function Hero() {
             href="https://linkedin.com/in/sarmad-ajmal"
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative p-3 rounded-full bg-light-surface/50 dark:bg-dark-surface/50 backdrop-blur-sm border border-light-border/50 dark:border-dark-border/50 hover:border-light-accent dark:hover:border-dark-accent transition-colors"
+            className="group relative p-3 rounded-full bg-light-surface/50 dark:bg-dark-surface/50 backdrop-blur-sm border border-light-border/50 dark:border-dark-border/50 hover:border-light-accent dark:hover:border-dark-accent transition-colors z-20"
             whileHover={{ scale: 1.1, rotate: -5 }}
             whileTap={{ scale: 0.9 }}
             aria-label="LinkedIn"
@@ -238,23 +238,24 @@ export function Hero() {
             <Linkedin className="w-5 h-5 text-light-text-secondary dark:text-dark-text-secondary group-hover:text-light-accent dark:group-hover:text-dark-accent transition-colors" />
           </motion.a>
         </motion.div>
-
-        <motion.div
-          className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, y: [0, 10, 0] }}
-          transition={{
-            opacity: { delay: 1.2, duration: 0.6 },
-            y: {
-              duration: 1.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-            },
-          }}
-        >
-          <ArrowDown className="w-6 h-6 text-light-text-secondary/50 dark:text-dark-text-secondary/50" />
-        </motion.div>
       </div>
+
+      {/* Scroll down arrow - positioned relative to section */}
+      <motion.div
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, y: [0, 10, 0] }}
+        transition={{
+          opacity: { delay: 1.2, duration: 0.6 },
+          y: {
+            duration: 1.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          },
+        }}
+      >
+        <ArrowDown className="w-6 h-6 text-light-text-secondary/50 dark:text-dark-text-secondary/50" />
+      </motion.div>
 
       {/* Scan line effect */}
       <motion.div
