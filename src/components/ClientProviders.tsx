@@ -4,7 +4,7 @@ import { AvailabilityBadge } from "@/components/AvailabilityBadge";
 import { CustomCursor } from "@/components/CustomCursor";
 import { PerformanceMonitorComponent } from "@/components/PerformanceMonitor";
 import { ScrollProgress } from "@/components/ScrollProgress";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { SectionNav } from "@/components/SectionNav";
 import LogRocket from "logrocket";
 import dynamic from "next/dynamic";
 import { useEffect } from "react";
@@ -38,13 +38,8 @@ export function ClientProviders() {
       {/* Interactive UI elements */}
       <CustomCursor />
       <ScrollProgress />
+      <SectionNav />
       <AvailabilityBadge />
-      {/* <Mascot /> */}
-
-      {/* Theme toggle - fixed position */}
-      <div className="fixed top-6 right-6 z-50">
-        <ThemeToggle />
-      </div>
     </>
   );
 }

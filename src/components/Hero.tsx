@@ -1,331 +1,610 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Greeting } from "./Greeting";
-import { ArrowDown, Linkedin as LinkedinIcon, Github as GithubIcon, Twitter as TwitterIcon } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
-import { throttle, prefersReducedMotion } from "@/utils/performance";
+import { ArrowDown, Github as GithubIcon, Linkedin as LinkedinIcon, Twitter as TwitterIcon } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { prefersReducedMotion } from "@/utils/performance";
 
-export function Hero() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const reducedMotion = prefersReducedMotion();
-  const heroRef = useRef<HTMLElement>(null);
+// --- Typed text hook ---
+function useTypedText(lines: string[], speed = 38): { displayed: string[]; done: boolean } {
+  const [displayed, setDisplayed] = useState<string[]>([]);
+  const [currentLine, setCurrentLine] = useState(0);
+  const [currentChar, setCurrentChar] = useState(0);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
-    // Skip parallax on reduced motion preference
-    if (reducedMotion) return;
+    if (currentLine >= lines.length) {
+      setDone(true);
+      return;
+    }
 
-    // Throttle to ~60fps for better performance
-    const handleMouseMove = throttle((e: MouseEvent) => {
-      // Use requestAnimationFrame for smooth updates
-      requestAnimationFrame(() => {
-        setMousePosition({
-          x: (e.clientX / window.innerWidth - 0.5) * 20,
-          y: (e.clientY / window.innerHeight - 0.5) * 20,
+    const line = lines[currentLine];
+
+    if (currentChar < line.length) {
+      const t = setTimeout(() => {
+        setDisplayed(prev => {
+          const next = [...prev];
+          // Use explicit index to ensure correct slot, even if the array
+          // was not yet extended (handles the currentChar === 0 case and
+          // avoids the previous append-based approach that could duplicate
+          // entries under React strict mode double-effect execution).
+          next[currentLine] = line.slice(0, currentChar + 1);
+          return next;
         });
-      });
-    }, 16); // ~60fps
+        setCurrentChar(c => c + 1);
+      }, speed);
+      return () => clearTimeout(t);
+    }
 
+    const pause = setTimeout(() => {
+      setCurrentLine(l => l + 1);
+      setCurrentChar(0);
+    }, 320);
+    return () => clearTimeout(pause);
+  }, [currentLine, currentChar, lines, speed]);
+
+  return { displayed, done };
+}
+
+// --- Circuit trace SVG background ---
+function CircuitTraces() {
+  return (
+    <svg
+      className="absolute inset-0 w-full h-full"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ opacity: 0.06 }}
+      aria-hidden="true"
+    >
+      <defs>
+        <pattern id="circuit" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
+          {/* Horizontal traces */}
+          <path d="M0 30 H40 V10 H80" stroke="currentColor" strokeWidth="1" fill="none" />
+          <path d="M80 10 H120" stroke="currentColor" strokeWidth="1" fill="none" />
+          <path d="M0 90 H30 V110 H120" stroke="currentColor" strokeWidth="1" fill="none" />
+          {/* Vertical traces */}
+          <path d="M60 0 V40 H100 V120" stroke="currentColor" strokeWidth="1" fill="none" />
+          <path d="M20 30 V60 H0" stroke="currentColor" strokeWidth="1" fill="none" />
+          {/* Nodes */}
+          <circle cx="40" cy="10" r="2" fill="currentColor" />
+          <circle cx="80" cy="10" r="2" fill="currentColor" />
+          <circle cx="60" cy="40" r="2" fill="currentColor" />
+          <circle cx="30" cy="90" r="2" fill="currentColor" />
+          <circle cx="100" cy="60" r="2" fill="currentColor" />
+          <circle cx="20" cy="60" r="2" fill="currentColor" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#circuit)" className="text-cyan-400 dark:text-cyan-400" />
+    </svg>
+  );
+}
+
+// --- Spotlight that follows mouse ---
+function Spotlight({ x, y }: { x: number; y: number }) {
+  return (
+    <div
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        background: `radial-gradient(600px circle at ${x}px ${y}px, rgba(0,229,255,0.06) 0%, transparent 70%)`,
+        transition: "background 0.12s ease",
+      }}
+    />
+  );
+}
+
+function scrollToSection(id: string): void {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+}
+
+const TERMINAL_LINES = [
+  "whoami",
+  "Sarmad Ajmal — Full-Stack Engineer",
+  "uptime --years",
+  "6+ years building enterprise SaaS",
+  "tech-stack --list",
+  "JavaScript · .NET · AWS · React · Node",
+];
+
+const STAT_ITEMS = [
+  { label: "YEARS EXP", value: "6+" },
+  { label: "PROJECTS", value: "30+" },
+  { label: "CLOUD CERTS", value: "3" },
+  { label: "STACK DEPTH", value: "∞" },
+];
+
+export function Hero() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [spot, setSpot] = useState({ x: 0, y: 0 });
+  const [mounted, setMounted] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  // Client-only initialization: greeting, reduced motion, date
+  const [greeting, setGreeting] = useState("INIT");
+  const [dateString, setDateString] = useState("");
+  const [loginDate, setLoginDate] = useState("");
+
+  useEffect(() => {
+    setMounted(true);
+    setReducedMotion(prefersReducedMotion());
+
+    const now = new Date();
+    setDateString(now.toISOString().split("T")[0]);
+    setLoginDate(now.toDateString());
+
+    const h = now.getHours();
+    if (h >= 5 && h < 12) setGreeting("MORNING_SESSION");
+    else if (h >= 12 && h < 17) setGreeting("AFTERNOON_SESSION");
+    else if (h >= 17 && h < 21) setGreeting("EVENING_SESSION");
+    else setGreeting("LATE_NIGHT_SESSION");
+  }, []);
+
+  // Typed terminal
+  const { displayed, done } = useTypedText(TERMINAL_LINES, 36);
+
+  // Mouse spotlight
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!sectionRef.current) return;
+    const rect = sectionRef.current.getBoundingClientRect();
+    setSpot({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion) return;
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [reducedMotion]);
-
-  const scrollToSection = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, [handleMouseMove, reducedMotion]);
 
   return (
     <section
       id="hero"
-      ref={heroRef}
-      className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-light-bg via-light-surface to-light-bg dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg"
+      ref={sectionRef}
+      className="relative min-h-screen overflow-hidden flex flex-col"
+      style={{ background: "var(--hero-bg, #0b1120)" }}
     >
-      {/* Enhanced animated background with mesh gradient - optimized for performance */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Mesh gradient blobs - reduced blur for better performance */}
-        {!reducedMotion && (
-          <>
-            <motion.div
-              className="absolute top-0 left-0 w-[800px] h-[800px] opacity-20"
-              style={{
-                background:
-                  "radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%)",
-                filter: "blur(60px)", // Reduced from 80px
-                willChange: "transform", // GPU acceleration hint
-              }}
-              animate={{
-                x: [0, 100, 0],
-                y: [0, 50, 0],
-                scale: [1, 1.1, 1],
-              }}
-              transition={{
-                duration: 20,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-            <motion.div
-              className="absolute bottom-0 right-0 w-[600px] h-[600px] opacity-20"
-              style={{
-                background:
-                  "radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 70%)",
-                filter: "blur(60px)", // Reduced from 80px
-                willChange: "transform",
-              }}
-              animate={{
-                x: [0, -50, 0],
-                y: [0, -80, 0],
-                scale: [1, 1.2, 1],
-              }}
-              transition={{
-                duration: 25,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-            <motion.div
-              className="absolute top-1/2 left-1/2 w-[500px] h-[500px] opacity-15"
-              style={{
-                background:
-                  "radial-gradient(circle, rgba(129, 140, 248, 0.3) 0%, transparent 70%)",
-                filter: "blur(50px)", // Reduced from 60px
-                transform: "translate(-50%, -50%)",
-                willChange: "transform",
-              }}
-              animate={{
-                scale: [1, 1.3, 1],
-                rotate: [0, 180, 360],
-              }}
-              transition={{
-                duration: 30,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-            />
-          </>
-        )}
+      {/* CSS vars override for hero — ensures deep navy regardless of theme */}
+      <style>{`
+        #hero {
+          --hero-bg: #0b1120;
+          --hero-surface: #101828;
+          --hero-border: rgba(0,229,255,0.18);
+          --hero-cyan: #00e5ff;
+          --hero-text: #e2e8f0;
+          --hero-muted: #64748b;
+        }
 
-        {/* Floating geometric shapes with parallax - optimized */}
-        <motion.div
-          className="absolute top-20 left-[10%] w-32 h-32 border border-light-accent/20 dark:border-dark-accent/20 rounded-lg"
-          style={{
-            transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)`,
-            willChange: reducedMotion ? "auto" : "transform",
-          }}
-          animate={
-            reducedMotion
-              ? false
-              : {
-                  rotate: [0, 360],
-                  y: [0, -20, 0],
-                }
-          }
-          transition={{
-            rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-            y: { duration: 5, repeat: Infinity, ease: "easeInOut" },
-          }}
-        />
-        <motion.div
-          className="absolute bottom-32 right-[15%] w-24 h-24 border-2 border-light-accent-secondary/30 dark:border-dark-accent-secondary/30"
-          style={{
-            transform: `translate(${mousePosition.x * 1.5}px, ${mousePosition.y * 1.5}px)`,
-            clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
-            willChange: reducedMotion ? "auto" : "transform",
-          }}
-          animate={
-            reducedMotion
-              ? false
-              : {
-                  rotate: [0, -360],
-                  scale: [1, 1.2, 1],
-                }
-          }
-          transition={{
-            rotate: { duration: 15, repeat: Infinity, ease: "linear" },
-            scale: { duration: 4, repeat: Infinity, ease: "easeInOut" },
-          }}
-        />
-        <motion.div
-          className="absolute top-1/3 right-[20%] w-16 h-16 rounded-full border border-light-accent/30 dark:border-dark-accent/30"
-          style={{
-            transform: `translate(${mousePosition.x * 0.8}px, ${mousePosition.y * 0.8}px)`,
-            willChange: reducedMotion ? "auto" : "transform",
-          }}
-          animate={
-            reducedMotion
-              ? false
-              : {
-                  scale: [1, 1.3, 1],
-                  opacity: [0.3, 0.6, 0.3],
-                }
-          }
-          transition={{
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
+        @keyframes hero-blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
 
-        {/* Grid overlay for tech feel */}
-        <div
-          className="absolute inset-0 opacity-[0.02] dark:opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(99, 102, 241, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(99, 102, 241, 0.5) 1px, transparent 1px)",
-            backgroundSize: "50px 50px",
-          }}
-        />
+        @keyframes hero-scan {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100vh); }
+        }
+
+        .hero-scanline {
+          animation: hero-scan 8s linear infinite;
+        }
+
+        @keyframes hero-flicker {
+          0%,100% { opacity: 0.9; }
+          92% { opacity: 0.9; }
+          93% { opacity: 0.7; }
+          94% { opacity: 0.9; }
+          96% { opacity: 0.75; }
+          97% { opacity: 0.9; }
+        }
+
+        .hero-name-text {
+          animation: hero-flicker 6s ease-in-out infinite;
+        }
+
+        @keyframes hero-trace-glow {
+          0%, 100% { opacity: 0.06; }
+          50% { opacity: 0.12; }
+        }
+
+        .hero-circuit {
+          animation: hero-trace-glow 4s ease-in-out infinite;
+        }
+      `}</style>
+
+      {/* Circuit traces */}
+      <div className="absolute inset-0 hero-circuit">
+        <CircuitTraces />
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-        <Greeting />
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <h1 className="text-6xl md:text-8xl font-bold mt-4 mb-6 relative">
-            <span className="bg-gradient-to-r from-light-accent via-light-accent-secondary to-light-accent dark:from-dark-accent dark:via-dark-accent-secondary dark:to-dark-accent bg-clip-text text-transparent inline-block animate-gradient">
-              Sarmad Ajmal
-            </span>
-            {/* Glitch effect layer */}
-            <span
-              className="absolute inset-0 bg-gradient-to-r from-light-accent to-light-accent-secondary dark:from-dark-accent dark:to-dark-accent-secondary bg-clip-text text-transparent opacity-30 blur-sm"
-              aria-hidden="true"
-            >
-              Sarmad Ajmal
-            </span>
-          </h1>
-        </motion.div>
-
-        <motion.p
-          className="text-2xl md:text-3xl font-semibold text-light-text dark:text-dark-text mb-4 tracking-tight"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          Full-Stack Engineer · Cloud Architect · Problem Solver
-        </motion.p>
-
-        <motion.p
-          className="text-lg md:text-xl text-light-text-secondary dark:text-dark-text-secondary max-w-2xl mx-auto mb-12 leading-relaxed"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-        >
-          Building enterprise-grade SaaS applications with modern JavaScript,
-          .NET, and AWS. 6+ years of architecting scalable solutions.
-        </motion.p>
-
-        <motion.div
-          className="flex gap-4 justify-center items-center flex-wrap"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-        >
-          <motion.button
-            onClick={() => scrollToSection("projects")}
-            className="group relative px-8 py-4 bg-light-accent dark:bg-dark-accent text-white rounded-xl font-semibold overflow-hidden"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <span className="relative z-10">View Projects</span>
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-light-accent-secondary to-light-accent dark:from-dark-accent-secondary dark:to-dark-accent"
-              initial={{ x: "100%" }}
-              whileHover={{ x: 0 }}
-              transition={{ duration: 0.3 }}
-            />
-          </motion.button>
-          <motion.button
-            onClick={() => scrollToSection("contact")}
-            className="px-8 py-4 border-2 border-light-accent dark:border-dark-accent text-light-accent dark:text-dark-accent rounded-xl font-semibold backdrop-blur-sm hover:bg-light-accent/10 dark:hover:bg-dark-accent/10 transition-colors"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Get in Touch
-          </motion.button>
-        </motion.div>
-
-        <motion.div
-          className="flex gap-6 justify-center items-center mt-10 mb-20"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1 }}
-        >
-          <motion.a
-            href="https://github.com/sarmad-ajmal"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative p-3 rounded-full bg-light-surface/50 dark:bg-dark-surface/50 backdrop-blur-sm border border-light-border/50 dark:border-dark-border/50 hover:border-light-accent dark:hover:border-dark-accent transition-colors z-20"
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            whileTap={{ scale: 0.9 }}
-            aria-label="GitHub"
-          >
-            <GithubIcon className="w-5 h-5 text-light-text-secondary dark:text-dark-text-secondary group-hover:text-light-accent dark:group-hover:text-dark-accent transition-colors" />
-          </motion.a>
-          <motion.a
-            href="https://linkedin.com/in/sarmad-ajmal"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative p-3 rounded-full bg-light-surface/50 dark:bg-dark-surface/50 backdrop-blur-sm border border-light-border/50 dark:border-dark-border/50 hover:border-light-accent dark:hover:border-dark-accent transition-colors z-20"
-            whileHover={{ scale: 1.1, rotate: -5 }}
-            whileTap={{ scale: 0.9 }}
-            aria-label="LinkedIn"
-          >
-            <LinkedinIcon className="w-5 h-5 text-light-text-secondary dark:text-dark-text-secondary group-hover:text-light-accent dark:group-hover:text-dark-accent transition-colors" />
-          </motion.a>
-          <motion.a
-            href="https://twitter.com/SarmadAjmal"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative p-3 rounded-full bg-light-surface/50 dark:bg-dark-surface/50 backdrop-blur-sm border border-light-border/50 dark:border-dark-border/50 hover:border-light-accent dark:hover:border-dark-accent transition-colors z-20"
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            whileTap={{ scale: 0.9 }}
-            aria-label="Twitter"
-          >
-            <TwitterIcon className="w-5 h-5 text-light-text-secondary dark:text-dark-text-secondary group-hover:text-light-accent dark:group-hover:text-dark-accent transition-colors" />
-          </motion.a>
-        </motion.div>
-      </div>
-
-      {/* Scroll down arrow - positioned relative to section */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1, y: [0, 10, 0] }}
-        transition={{
-          opacity: { delay: 1.2, duration: 0.6 },
-          y: {
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-          },
+      {/* Phosphor CRT vignette */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(0,0,0,0.7) 100%)",
         }}
-      >
-        <ArrowDown className="w-6 h-6 text-light-text-secondary/50 dark:text-dark-text-secondary/50" />
-      </motion.div>
+      />
 
-      {/* Scan line effect - disabled on reduced motion */}
+      {/* Scanline sweep */}
       {!reducedMotion && (
-        <motion.div
-          className="absolute inset-0 pointer-events-none opacity-[0.02]"
-          style={{
-            background:
-              "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(99, 102, 241, 0.1) 2px, rgba(99, 102, 241, 0.1) 4px)",
-            willChange: "transform",
-          }}
-          animate={{
-            y: [0, -4],
-          }}
-          transition={{
-            duration: 0.1,
-            repeat: Infinity,
-            ease: "linear",
-          }}
+        <div
+          className="absolute inset-x-0 h-[2px] hero-scanline pointer-events-none"
+          style={{ background: "linear-gradient(transparent, rgba(0,229,255,0.04), transparent)" }}
         />
       )}
+
+      {/* Mouse spotlight */}
+      {!reducedMotion && <Spotlight x={spot.x} y={spot.y} />}
+
+      {/* Horizontal rules — top bar */}
+      <div
+        className="absolute top-0 left-0 right-0 h-[1px]"
+        style={{ background: "linear-gradient(90deg, transparent, var(--hero-cyan), transparent)" }}
+      />
+      <div className="absolute top-8 left-0 right-0 flex items-center px-8 gap-4">
+        <span className="font-mono text-xs" style={{ color: "var(--hero-cyan)" }}>
+          PORTFOLIO.V2
+        </span>
+        <div className="flex-1 h-px" style={{ background: "var(--hero-border)" }} />
+        {mounted && (
+          <>
+            <span className="font-mono text-xs" style={{ color: "var(--hero-muted)" }}>
+              {greeting}
+            </span>
+            <div className="font-mono text-xs" style={{ color: "var(--hero-muted)" }}>
+              {dateString}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Vertical left label */}
+      <div
+        className="absolute left-0 top-1/2 -translate-y-1/2 font-mono text-[10px] tracking-[0.4em] pointer-events-none select-none"
+        style={{
+          color: "var(--hero-cyan)",
+          writingMode: "vertical-rl",
+          transform: "translateY(-50%) rotate(180deg)",
+          marginLeft: "1rem",
+          opacity: 0.5,
+        }}
+      >
+        SRD.AJMAL // ENG
+      </div>
+
+      {/* Main content */}
+      <div className="flex-1 flex items-center justify-center px-8 md:px-16 lg:px-24">
+        <div className="w-full max-w-7xl">
+
+          {/* Two-column grid: name left, terminal right */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-12 lg:gap-16 items-center">
+
+            {/* LEFT — Name + tagline + CTAs */}
+            <div>
+              {/* Tag chip */}
+              <motion.div
+                className="inline-flex items-center gap-2 mb-8"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <span
+                  className="w-2 h-2 rounded-full"
+                  style={{ background: "#22c55e", boxShadow: "0 0 8px #22c55e" }}
+                />
+                <span className="font-mono text-xs uppercase tracking-widest" style={{ color: "var(--hero-muted)" }}>
+                  Available for work
+                </span>
+              </motion.div>
+
+              {/* Name — huge, left-anchored, CRT flicker */}
+              <motion.h1
+                className="font-mono font-black leading-none tracking-tighter mb-6 hero-name-text"
+                style={{
+                  fontSize: "clamp(3rem, 9vw, 8rem)",
+                  color: "var(--hero-text)",
+                }}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+              >
+                <span style={{ display: "block" }}>SARMAD</span>
+                <span
+                  style={{
+                    display: "block",
+                    WebkitTextStroke: "2px var(--hero-cyan)",
+                    color: "transparent",
+                    filter: `drop-shadow(0 0 20px rgba(0,229,255,0.4))`,
+                  }}
+                >
+                  AJMAL
+                </span>
+              </motion.h1>
+
+              {/* Role line */}
+              <motion.div
+                className="flex items-center gap-4 mb-10"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.45 }}
+              >
+                <div className="h-px flex-shrink-0 w-8" style={{ background: "var(--hero-cyan)" }} />
+                <p
+                  className="font-mono text-sm md:text-base tracking-wider uppercase"
+                  style={{ color: "var(--hero-muted)" }}
+                >
+                  Full-Stack Engineer · Cloud Architect · Problem Solver
+                </p>
+              </motion.div>
+
+              {/* Stats row */}
+              <motion.div
+                className="grid grid-cols-4 gap-0 mb-10 border"
+                style={{ borderColor: "var(--hero-border)" }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+              >
+                {STAT_ITEMS.map((s, i) => (
+                  <div
+                    key={s.label}
+                    className="flex flex-col items-center py-4 px-2"
+                    style={{
+                      borderRight: i < 3 ? `1px solid var(--hero-border)` : "none",
+                    }}
+                  >
+                    <span
+                      className="font-mono font-black text-2xl md:text-3xl"
+                      style={{ color: "var(--hero-cyan)" }}
+                    >
+                      {s.value}
+                    </span>
+                    <span
+                      className="font-mono text-[9px] md:text-[10px] tracking-widest mt-1 text-center"
+                      style={{ color: "var(--hero-muted)" }}
+                    >
+                      {s.label}
+                    </span>
+                  </div>
+                ))}
+              </motion.div>
+
+              {/* CTA buttons */}
+              <motion.div
+                className="flex gap-4 items-center flex-wrap mb-10"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.75 }}
+              >
+                <motion.button
+                  onClick={() => scrollToSection("projects")}
+                  className="group relative px-6 py-3 font-mono text-sm font-bold uppercase tracking-widest overflow-hidden"
+                  style={{
+                    background: "var(--hero-cyan)",
+                    color: "#0b1120",
+                    clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))",
+                  }}
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  <span className="relative z-10">./view-projects</span>
+                  <motion.div
+                    className="absolute inset-0"
+                    style={{ background: "rgba(0,0,0,0.15)" }}
+                    initial={{ x: "-100%" }}
+                    whileHover={{ x: 0 }}
+                    transition={{ duration: 0.25 }}
+                  />
+                </motion.button>
+
+                <motion.button
+                  onClick={() => scrollToSection("contact")}
+                  className="px-6 py-3 font-mono text-sm font-bold uppercase tracking-widest border"
+                  style={{
+                    borderColor: "var(--hero-border)",
+                    color: "var(--hero-cyan)",
+                    clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))",
+                  }}
+                  whileHover={{
+                    scale: 1.04,
+                    borderColor: "var(--hero-cyan)",
+                    backgroundColor: "rgba(0,229,255,0.06)",
+                  }}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  ./get-in-touch
+                </motion.button>
+              </motion.div>
+
+              {/* Social icons */}
+              <motion.div
+                className="flex gap-5 items-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.9 }}
+              >
+                {[
+                  { href: "https://github.com/sarmad-ajmal", Icon: GithubIcon, label: "GitHub" },
+                  { href: "https://linkedin.com/in/sarmad-ajmal", Icon: LinkedinIcon, label: "LinkedIn" },
+                  { href: "https://twitter.com/SarmadAjmal", Icon: TwitterIcon, label: "Twitter" },
+                ].map(({ href, Icon, label }) => (
+                  <motion.a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="group flex items-center gap-2"
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <div
+                      className="p-2 border transition-colors"
+                      style={{
+                        borderColor: "var(--hero-border)",
+                        color: "var(--hero-muted)",
+                      }}
+                    >
+                      <Icon className="w-4 h-4 group-hover:text-cyan-400 transition-colors" />
+                    </div>
+                    <span
+                      className="font-mono text-xs uppercase tracking-widest hidden md:block"
+                      style={{ color: "var(--hero-muted)" }}
+                    >
+                      {label}
+                    </span>
+                  </motion.a>
+                ))}
+              </motion.div>
+            </div>
+
+            {/* RIGHT — Terminal window */}
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="hidden lg:block"
+            >
+              {/* Terminal chrome */}
+              <div
+                className="border"
+                style={{ borderColor: "var(--hero-border)", background: "var(--hero-surface)" }}
+              >
+                {/* Title bar */}
+                <div
+                  className="flex items-center gap-2 px-4 py-3 border-b"
+                  style={{ borderColor: "var(--hero-border)" }}
+                >
+                  <div className="flex gap-1.5">
+                    {["#ff5f56","#ffbd2e","#27c93f"].map(c => (
+                      <div key={c} className="w-3 h-3 rounded-full" style={{ background: c }} />
+                    ))}
+                  </div>
+                  <span className="font-mono text-xs ml-2" style={{ color: "var(--hero-muted)" }}>
+                    bash — sarmad@portfolio
+                  </span>
+                  <div className="flex-1" />
+                  <span className="font-mono text-xs" style={{ color: "var(--hero-muted)" }}>
+                    zsh 5.9
+                  </span>
+                </div>
+
+                {/* Terminal body */}
+                <div className="p-5 space-y-2" style={{ minHeight: "280px" }}>
+                  {/* Always-visible session header */}
+                  {mounted && (
+                    <div className="font-mono text-xs mb-4" style={{ color: "var(--hero-muted)" }}>
+                      Last login: {loginDate} on ttys001
+                    </div>
+                  )}
+
+                  {TERMINAL_LINES.map((line, i) => {
+                    const isCommand = i % 2 === 0;
+                    const displayedLine = displayed[i] ?? "";
+                    const isCurrentlyTyping = i === Math.min(displayed.length - 1, TERMINAL_LINES.length - 1);
+                    const isFutureLine = i >= displayed.length;
+
+                    if (isFutureLine) return null;
+
+                    return (
+                      <motion.div
+                        key={i}
+                        className="flex items-start gap-2 font-mono text-sm"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.1 }}
+                      >
+                        {isCommand ? (
+                          <span style={{ color: "var(--hero-cyan)" }} className="select-none shrink-0">❯</span>
+                        ) : (
+                          <span style={{ color: "var(--hero-muted)" }} className="select-none shrink-0 text-xs mt-0.5">↳</span>
+                        )}
+                        <span
+                          style={{
+                            color: isCommand ? "#e2e8f0" : "#22c55e",
+                          }}
+                        >
+                          {displayedLine}
+                          {isCurrentlyTyping && !done && (
+                            <span
+                              className="inline-block w-[7px] h-[14px] ml-0.5 align-middle"
+                              style={{
+                                background: "var(--hero-cyan)",
+                                animation: "hero-blink 1s step-end infinite",
+                              }}
+                            />
+                          )}
+                        </span>
+                      </motion.div>
+                    );
+                  })}
+
+                  {/* Final cursor when done */}
+                  {done && (
+                    <div className="flex items-center gap-2 font-mono text-sm mt-2">
+                      <span style={{ color: "var(--hero-cyan)" }}>❯</span>
+                      <span
+                        className="inline-block w-[7px] h-[14px]"
+                        style={{
+                          background: "var(--hero-cyan)",
+                          animation: "hero-blink 1s step-end infinite",
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Status bar */}
+                <div
+                  className="flex items-center justify-between px-4 py-2 border-t font-mono text-[10px]"
+                  style={{ borderColor: "var(--hero-border)", background: "rgba(0,229,255,0.04)" }}
+                >
+                  <span style={{ color: "#22c55e" }}>● ONLINE</span>
+                  <span style={{ color: "var(--hero-muted)" }}>UTC+5 · PKT</span>
+                  <span style={{ color: "var(--hero-cyan)" }}>main ✓</span>
+                </div>
+              </div>
+
+              {/* Decorative corner bracket */}
+              <div
+                className="font-mono text-xs mt-3 text-right"
+                style={{ color: "var(--hero-muted)" }}
+              >
+                // v2.0.0 · built with passion
+              </div>
+            </motion.div>
+
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div className="absolute bottom-0 left-0 right-0">
+        <div className="flex items-center px-8 pb-8">
+          <div className="flex-1 h-px" style={{ background: "var(--hero-border)" }} />
+          <motion.button
+            onClick={() => scrollToSection("about")}
+            className="flex flex-col items-center gap-2 mx-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.6 }}
+            whileHover={{ y: -2 }}
+          >
+            <span className="font-mono text-[10px] tracking-widest uppercase" style={{ color: "var(--hero-muted)" }}>
+              scroll
+            </span>
+            <motion.div
+              animate={reducedMotion ? {} : { y: [0, 8, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <ArrowDown className="w-4 h-4" style={{ color: "var(--hero-cyan)" }} />
+            </motion.div>
+          </motion.button>
+          <div className="flex-1 h-px" style={{ background: "var(--hero-border)" }} />
+        </div>
+      </div>
+
+      {/* Bottom edge glow */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-[1px]"
+        style={{ background: "linear-gradient(90deg, transparent, var(--hero-cyan), transparent)" }}
+      />
     </section>
   );
 }

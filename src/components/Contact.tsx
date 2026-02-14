@@ -1,102 +1,198 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { contact } from "@/data/contact";
-import { Linkedin, Download, Send } from "lucide-react";
+import { Linkedin, Download, Send, Github, Twitter, Terminal } from "lucide-react";
+import { useRef } from "react";
+
+const LINKS = [
+  { href: contact.linkedin, Icon: Linkedin, label: "LinkedIn", action: "connect" },
+  { href: "https://github.com/sarmad-ajmal", Icon: Github, label: "GitHub", action: "follow" },
+  { href: "https://twitter.com/SarmadAjmal", Icon: Twitter, label: "Twitter", action: "follow" },
+];
 
 export function Contact() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
   return (
     <section
       id="contact"
-      className="py-20 px-6 bg-light-surface dark:bg-dark-surface relative overflow-hidden"
+      ref={ref}
+      className="py-24 px-8 md:px-16 lg:px-24 relative overflow-hidden"
+      style={{ background: "var(--t-bg)" }}
     >
-      {/* Background elements */}
-      <div className="absolute top-0 left-1/3 w-96 h-96 bg-light-accent/5 dark:bg-dark-accent/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/3 w-96 h-96 bg-light-accent-secondary/5 dark:bg-dark-accent-secondary/5 rounded-full blur-3xl" />
+      {/* Radial spotlight behind ASCII art */}
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none"
+        style={{
+          background: "radial-gradient(ellipse at center, rgba(0,229,255,0.06) 0%, transparent 70%)",
+        }}
+      />
 
-      <div className="max-w-4xl mx-auto text-center relative z-10">
+      <div className="max-w-5xl mx-auto relative z-10">
         <motion.div
-          className="mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <motion.span
-            className="inline-block px-4 py-2 rounded-full bg-light-accent/10 dark:bg-dark-accent/10 text-light-accent dark:text-dark-accent text-sm font-semibold mb-4 border border-light-accent/20 dark:border-dark-accent/20"
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            viewport={{ once: true }}
-          >
-            Let&apos;s Connect
-          </motion.span>
-
-          <h2 className="text-5xl md:text-6xl font-bold text-light-text dark:text-dark-text mb-6 tracking-tight">
-            Get In Touch
-          </h2>
-
-          <p className="text-lg md:text-xl text-light-text-secondary dark:text-dark-text-secondary max-w-2xl mx-auto leading-relaxed">
-            Available for freelance projects and full-time opportunities.
-            Let&apos;s build something amazing together!
-          </p>
+          <div className="mb-12">
+            <div className="flex items-center gap-4 mb-6">
+              <span className="t-section-header">[06 — CONTACT]</span>
+              <div className="flex-1 h-px" style={{ background: "var(--t-border)" }} />
+            </div>
+          </div>
         </motion.div>
 
-        <div className="flex justify-center max-w-md mx-auto mb-12">
-          <motion.a
-            href={contact.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative flex items-center gap-4 p-8 rounded-2xl backdrop-blur-md bg-light-bg/60 dark:bg-dark-bg/60 border border-light-border/50 dark:border-dark-border/50 hover:border-light-accent dark:hover:border-dark-accent transition-all duration-500 overflow-hidden w-full"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            viewport={{ once: true }}
-            whileHover={{ y: -5, scale: 1.02 }}
+        {/* Big headline — the dramatic centerpiece */}
+        <motion.h2
+          className="text-center mb-12 font-mono font-black text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tighter select-none"
+          style={{
+            color: "var(--t-cyan)",
+            textShadow: "0 0 40px rgba(0,229,255,0.3), 0 0 80px rgba(0,229,255,0.1)",
+            WebkitTextStroke: "1px rgba(0,229,255,0.4)",
+          }}
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={isInView ? { opacity: 1, scale: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          CONNECT
+        </motion.h2>
+
+        <motion.p
+          className="t-section-subtitle text-center max-w-lg mx-auto mb-16"
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ delay: 0.5 }}
+        >
+          Available for freelance projects and full-time opportunities.
+          Let&apos;s build something amazing together.
+        </motion.p>
+
+        {/* Terminal-style connection prompt */}
+        <motion.div
+          className="t-card mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          {/* Terminal header */}
+          <div
+            className="flex items-center gap-3 px-6 py-3"
+            style={{ borderBottom: "1px solid var(--t-border)" }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-light-accent/5 via-transparent to-light-accent-secondary/5 dark:from-dark-accent/5 dark:to-dark-accent-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <Terminal className="w-3.5 h-3.5" style={{ color: "var(--t-cyan)" }} />
+            <span className="font-mono text-xs" style={{ color: "var(--t-cyan)" }}>
+              connect.sh
+            </span>
+            <div className="flex-1" />
+            <span className="font-mono text-[10px]" style={{ color: "var(--t-green)" }}>● READY</span>
+          </div>
 
-            <motion.div
-              className="relative z-10 p-4 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 shadow-lg"
-              whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Linkedin className="w-6 h-6 text-white" />
-            </motion.div>
-
-            <div className="relative z-10 text-left flex-1">
-              <div className="text-sm font-medium text-light-text-secondary dark:text-dark-text-secondary mb-1">
-                LinkedIn
-              </div>
-              <div className="font-semibold text-lg text-light-text dark:text-dark-text group-hover:text-light-accent dark:group-hover:text-dark-accent transition-colors">
-                Connect with me
-              </div>
+          {/* Terminal body — command prompt style */}
+          <div className="p-6 md:p-8">
+            {/* Simulated command */}
+            <div className="font-mono text-sm mb-6" style={{ color: "var(--t-muted)" }}>
+              <span style={{ color: "var(--t-cyan)" }}>❯</span>{" "}
+              <span style={{ color: "var(--t-text)" }}>./connect --with sarmad</span>
+            </div>
+            <div className="font-mono text-sm mb-8" style={{ color: "var(--t-green)" }}>
+              ↳ Establishing connection... Choose a channel:
             </div>
 
-            <Send className="relative z-10 w-5 h-5 text-light-text-secondary dark:text-dark-text-secondary opacity-0 group-hover:opacity-100 transition-opacity" />
-          </motion.a>
-        </div>
+            {/* Link cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {LINKS.map(({ href, Icon, label, action }, i) => (
+                <motion.a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="t-card flex items-center gap-4 p-5 group relative overflow-hidden"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: 0.5 + i * 0.1 }}
+                  whileHover={{ borderColor: "rgba(0,229,255,0.5)" }}
+                >
+                  {/* Hover glow */}
+                  <div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                    style={{ background: "radial-gradient(ellipse at center, rgba(0,229,255,0.04) 0%, transparent 70%)" }}
+                  />
+                  <Icon className="w-5 h-5 shrink-0 relative z-10" style={{ color: "var(--t-cyan)" }} />
+                  <div className="relative z-10 flex-1">
+                    <div className="font-mono text-xs font-bold" style={{ color: "var(--t-text)" }}>{label}</div>
+                    <div className="font-mono text-[10px]" style={{ color: "var(--t-muted)" }}>--{action}</div>
+                  </div>
+                  <Send
+                    className="w-3 h-3 relative z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-0 -translate-x-2"
+                    style={{ color: "var(--t-cyan)" }}
+                  />
+                </motion.a>
+              ))}
+            </div>
 
-        <motion.a
-          href="/resume.pdf"
-          download
-          className="group relative inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-light-accent to-light-accent-secondary dark:from-dark-accent dark:to-dark-accent-secondary text-white rounded-2xl font-bold text-lg shadow-2xl overflow-hidden"
+            {/* Connection status */}
+            <div className="mt-6 pt-4 font-mono text-xs" style={{ borderTop: "1px solid var(--t-border)", color: "var(--t-muted)" }}>
+              <span style={{ color: "var(--t-cyan)" }}>❯</span>{" "}
+              <span className="inline-block w-[7px] h-[12px] align-middle" style={{ background: "var(--t-cyan)", animation: "t-blink 1s step-end infinite" }} />
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Resume download — styled as a wget command */}
+        <motion.div
+          className="text-center mb-8"
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.6 }}
-          viewport={{ once: true }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
         >
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-light-accent-secondary to-light-accent dark:from-dark-accent-secondary dark:to-dark-accent"
-            initial={{ x: "100%" }}
-            whileHover={{ x: 0 }}
-            transition={{ duration: 0.3 }}
-          />
-          <Download className="relative z-10 w-6 h-6" />
-          <span className="relative z-10">Download Resume</span>
-        </motion.a>
+          <motion.a
+            href="/resume.pdf"
+            download
+            className="group inline-flex items-center gap-3 px-8 py-4 font-mono text-sm font-bold uppercase tracking-widest t-clip relative overflow-hidden"
+            style={{
+              background: "var(--t-cyan)",
+              color: "var(--t-bg)",
+            }}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+          >
+            <motion.div
+              className="absolute inset-0"
+              style={{ background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%)" }}
+              initial={{ x: "-100%" }}
+              whileHover={{ x: "100%" }}
+              transition={{ duration: 0.6 }}
+            />
+            <Download className="w-5 h-5 relative z-10" />
+            <span className="relative z-10">wget resume.pdf</span>
+          </motion.a>
+        </motion.div>
+
+        {/* Email hint */}
+        <motion.div
+          className="text-center font-mono text-xs"
+          style={{ color: "var(--t-muted)" }}
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ delay: 0.8 }}
+        >
+          or reach out directly at{" "}
+          <a
+            href={`mailto:${contact.email}`}
+            className="transition-colors hover:underline"
+            style={{ color: "var(--t-cyan)" }}
+          >
+            {contact.email}
+          </a>
+        </motion.div>
+
+        <div className="mt-16 flex items-center gap-4">
+          <div className="flex-1 h-px" style={{ background: "var(--t-border)" }} />
+          <span className="font-mono text-[10px]" style={{ color: "var(--t-muted)" }}>// EOF</span>
+        </div>
       </div>
     </section>
   );

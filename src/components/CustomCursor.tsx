@@ -39,11 +39,15 @@ export function CustomCursor() {
     <>
       {/* Main cursor dot */}
       <motion.div
-        className="fixed top-0 left-0 w-4 h-4 bg-light-accent dark:bg-dark-accent rounded-full pointer-events-none z-[9999] mix-blend-difference"
+        className="fixed top-0 left-0 w-3 h-3 pointer-events-none z-[9999]"
+        style={{
+          background: "var(--t-cyan)",
+          boxShadow: "0 0 8px rgba(0,229,255,0.5)",
+        }}
         animate={{
-          x: mousePosition.x - 8,
-          y: mousePosition.y - 8,
-          scale: isHovering ? 1.5 : 1,
+          x: mousePosition.x - 6,
+          y: mousePosition.y - 6,
+          scale: isHovering ? 1.8 : 1,
         }}
         transition={{
           type: "spring",
@@ -52,13 +56,17 @@ export function CustomCursor() {
           mass: 0.5,
         }}
       />
-      {/* Cursor ring */}
+      {/* Cursor ring — square for terminal aesthetic */}
       <motion.div
-        className="fixed top-0 left-0 w-10 h-10 border-2 border-light-accent/50 dark:border-dark-accent/50 rounded-full pointer-events-none z-[9999] mix-blend-difference"
+        className="fixed top-0 left-0 w-8 h-8 pointer-events-none z-[9999]"
+        style={{
+          border: "1px solid rgba(0,229,255,0.4)",
+        }}
         animate={{
-          x: mousePosition.x - 20,
-          y: mousePosition.y - 20,
+          x: mousePosition.x - 16,
+          y: mousePosition.y - 16,
           scale: isHovering ? 1.5 : 1,
+          rotate: isHovering ? 45 : 0,
         }}
         transition={{
           type: "spring",
