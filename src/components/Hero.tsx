@@ -1,9 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowDown, Github as GithubIcon, Linkedin as LinkedinIcon, Twitter as TwitterIcon } from "lucide-react";
+import { ArrowDown, Github as GithubIcon, Linkedin as LinkedinIcon, Twitter as TwitterIcon, Download } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { prefersReducedMotion } from "@/utils/performance";
+import { EasterEgg } from "@/components/EasterEgg";
 
 // --- Typed text hook ---
 function useTypedText(lines: string[], speed = 38): { displayed: string[]; done: boolean } {
@@ -121,6 +122,7 @@ export function Hero() {
   const [greeting, setGreeting] = useState("INIT");
   const [dateString, setDateString] = useState("");
   const [loginDate, setLoginDate] = useState("");
+  const [hireMe, setHireMe] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -249,6 +251,22 @@ export function Hero() {
             </span>
             <div className="font-mono text-xs" style={{ color: "var(--hero-muted)" }}>
               {dateString}
+            </div>
+            <div
+              className="hidden sm:flex items-center gap-2 font-mono text-xs px-3 py-1.5 border"
+              style={{ borderColor: "rgba(0,229,255,0.3)", color: "var(--hero-muted)" }}
+            >
+              <span>navigate</span>
+              <kbd
+                className="px-1.5 py-0.5 text-[10px]"
+                style={{
+                  background: "rgba(0,229,255,0.08)",
+                  border: "1px solid rgba(0,229,255,0.25)",
+                  color: "var(--hero-cyan)",
+                }}
+              >
+                ⌘K
+              </kbd>
             </div>
           </>
         )}
@@ -393,23 +411,44 @@ export function Hero() {
                   />
                 </motion.button>
 
-                <motion.button
-                  onClick={() => scrollToSection("contact")}
+<motion.button
+                  onClick={() => setHireMe(true)}
                   className="px-6 py-3 font-mono text-sm font-bold uppercase tracking-widest border"
                   style={{
-                    borderColor: "var(--hero-border)",
-                    color: "var(--hero-cyan)",
+                    borderColor: "rgba(34,197,94,0.4)",
+                    color: "#22c55e",
                     clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))",
                   }}
                   whileHover={{
                     scale: 1.04,
-                    borderColor: "var(--hero-cyan)",
-                    backgroundColor: "rgba(0,229,255,0.06)",
+                    borderColor: "#22c55e",
+                    backgroundColor: "rgba(34,197,94,0.06)",
                   }}
                   whileTap={{ scale: 0.96 }}
                 >
-                  ./get-in-touch
+                  ./hire-me
                 </motion.button>
+
+                <motion.a
+                  href="/resume.pdf"
+                  download
+                  className="flex items-center gap-2 px-4 py-3 font-mono text-sm uppercase tracking-widest border"
+                  style={{
+                    borderColor: "var(--hero-border)",
+                    color: "var(--hero-muted)",
+                    clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))",
+                  }}
+                  whileHover={{
+                    scale: 1.04,
+                    color: "var(--hero-cyan)",
+                    borderColor: "var(--hero-border)",
+                    backgroundColor: "rgba(0,229,255,0.04)",
+                  }}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  ./cv
+                </motion.a>
               </motion.div>
 
               {/* Social icons */}
@@ -605,6 +644,8 @@ export function Hero() {
         className="absolute bottom-0 left-0 right-0 h-[1px]"
         style={{ background: "linear-gradient(90deg, transparent, var(--hero-cyan), transparent)" }}
       />
+
+      <EasterEgg open={hireMe} onClose={() => setHireMe(false)} />
     </section>
   );
 }

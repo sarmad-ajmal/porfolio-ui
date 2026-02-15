@@ -55,14 +55,6 @@ export const metadata: Metadata = {
     description:
       "Senior Full-Stack Developer with 6+ years of experience building scalable SaaS applications using React, Node.js, and AWS. Specializing in enterprise-grade solutions and cloud architecture.",
     siteName: "Sarmad Ajmal Portfolio",
-    images: [
-      {
-        url: "/og-image.jpg", // Create this image (1200x630px)
-        width: 1200,
-        height: 630,
-        alt: "Sarmad Ajmal - Full-Stack Developer & Cloud Architect",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -70,7 +62,6 @@ export const metadata: Metadata = {
     description:
       "Senior Full-Stack Developer with 6+ years of experience building scalable SaaS applications. Specializing in React, Node.js, and AWS.",
     creator: "@SarmadAjmal",
-    images: ["/og-image.jpg"], // Same as Open Graph image
   },
   robots: {
     index: true,

@@ -1,6 +1,7 @@
 "use client";
 
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
+import { CommandPalette } from "@/components/CommandPalette";
 import { CustomCursor } from "@/components/CustomCursor";
 import { PerformanceMonitorComponent } from "@/components/PerformanceMonitor";
 import { ScrollProgress } from "@/components/ScrollProgress";
@@ -40,6 +41,7 @@ export function ClientProviders() {
       <ScrollProgress />
       <SectionNav />
       <AvailabilityBadge />
+      <CommandPalette />
     </>
   );
 }

@@ -94,6 +94,9 @@ export function Footer() {
           style={{ borderTop: "1px solid var(--t-border)", color: "var(--t-muted)" }}
         >
           <span>{year && `© ${year} ${contact.name}. All rights reserved.`}</span>
+          <span style={{ color: "var(--t-muted)", opacity: 0.5 }}>
+            // keyboard secrets await the curious
+          </span>
           <span>
             Built with <span style={{ color: "var(--t-text)" }}>Next.js</span> +{" "}
             <span style={{ color: "var(--t-text)" }}>TypeScript</span> +{" "}

@@ -2,8 +2,8 @@
 
 import { motion, useInView } from "framer-motion";
 import { contact } from "@/data/contact";
-import { Linkedin, Download, Send, Github, Twitter, Terminal } from "lucide-react";
-import { useRef } from "react";
+import { Linkedin, Download, Send, Github, Twitter, Terminal, Copy, Check } from "lucide-react";
+import { useRef, useState } from "react";
 
 const LINKS = [
   { href: contact.linkedin, Icon: Linkedin, label: "LinkedIn", action: "connect" },
@@ -14,6 +14,13 @@ const LINKS = [
 export function Contact() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [copied, setCopied] = useState(false);
+
+  function copyEmail() {
+    navigator.clipboard.writeText(contact.email);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   return (
     <section
@@ -171,15 +178,14 @@ export function Contact() {
           </motion.a>
         </motion.div>
 
-        {/* Email hint */}
+        {/* Email row */}
         <motion.div
-          className="text-center font-mono text-xs"
-          style={{ color: "var(--t-muted)" }}
+          className="flex items-center justify-center gap-3 font-mono text-sm"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ delay: 0.8 }}
         >
-          or reach out directly at{" "}
+          <span style={{ color: "var(--t-muted)" }} className="text-xs">or email directly</span>
           <a
             href={`mailto:${contact.email}`}
             className="transition-colors hover:underline"
@@ -187,6 +193,19 @@ export function Contact() {
           >
             {contact.email}
           </a>
+          <button
+            onClick={copyEmail}
+            className="flex items-center gap-1.5 px-2.5 py-1 border font-mono text-[10px] uppercase tracking-widest transition-all"
+            style={{
+              borderColor: copied ? "var(--t-green)" : "var(--t-border)",
+              color: copied ? "var(--t-green)" : "var(--t-muted)",
+              background: copied ? "rgba(34,197,94,0.06)" : "transparent",
+            }}
+            aria-label="Copy email"
+          >
+            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+            {copied ? "copied" : "copy"}
+          </button>
         </motion.div>
 
         <div className="mt-16 flex items-center gap-4">
