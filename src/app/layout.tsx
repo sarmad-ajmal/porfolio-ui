@@ -20,7 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://sarmadajmal.com'), // Update with your actual domain
+  metadataBase: new URL('https://sarmadajmal.me'),
   title: {
     default: "Sarmad Ajmal | Senior Full-Stack Developer & Cloud Architect",
     template: "%s | Sarmad Ajmal"
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://sarmadajmal.com", // Update with your actual domain
+    url: "https://sarmadajmal.me",
     title: "Sarmad Ajmal | Senior Full-Stack Developer & Cloud Architect",
     description:
       "Senior Full-Stack Developer with 6+ years of experience building scalable SaaS applications using React, Node.js, and AWS. Specializing in enterprise-grade solutions and cloud architecture.",

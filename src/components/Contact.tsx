@@ -156,7 +156,7 @@ export function Contact() {
           transition={{ duration: 0.5, delay: 0.6 }}
         >
           <motion.a
-            href="/resume.pdf"
+            href="/assets/resume/resume.pdf"
             download
             className="group inline-flex items-center gap-3 px-8 py-4 font-mono text-sm font-bold uppercase tracking-widest t-clip relative overflow-hidden"
             style={{

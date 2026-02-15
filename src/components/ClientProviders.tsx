@@ -25,6 +25,10 @@ const Mascot = dynamic(
  */
 export function ClientProviders() {
   useEffect(() => {
+    // Always start from the top on page load/reload
+    history.scrollRestoration = "manual";
+    window.scrollTo(0, 0);
+
     // Initialize LogRocket for session replay and monitoring
     if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_LOGROCKET_APP_ID) {
       LogRocket.init(process.env.NEXT_PUBLIC_LOGROCKET_APP_ID);

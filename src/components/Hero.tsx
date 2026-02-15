@@ -430,7 +430,7 @@ export function Hero() {
                 </motion.button>
 
                 <motion.a
-                  href="/resume.pdf"
+                  href="/assets/resume/resume.pdf"
                   download
                   className="flex items-center gap-2 px-4 py-3 font-mono text-sm uppercase tracking-widest border"
                   style={{

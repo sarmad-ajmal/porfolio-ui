@@ -9,9 +9,22 @@ export interface Experience {
 
 export const experience: Experience[] = [
   {
+    title: "Senior Frontend Developer",
+    company: "Ophycare",
+    location: "Islamabad, Pakistan",
+    period: "Jan 2026 – Present",
+    duration: "Present",
+    highlights: [
+      "Spearheading development of an Integrated Medical Record (IMR) platform using Next.js for unified patient data management across clinical workflows",
+      "Building HIPAA-aware UI components with TypeScript and React, implementing role-based access controls and real-time data sync for multi-provider environments",
+      "Optimizing Core Web Vitals through SSR, incremental static regeneration (ISR), and efficient client-side state management",
+      "Collaborating with backend and clinical teams to translate complex healthcare workflows into intuitive interfaces",
+    ],
+  },
+  {
     title: "Senior Full Stack Engineer",
-    company: "Aviation Technology Company",
-    location: "Dubai, UAE (Remote)",
+    company: "Click Aviation Network",
+    location: "Dubai, UAE",
     period: "Feb 2023 - Apr 2025",
     duration: "2 years, 3 months",
     highlights: [
@@ -24,7 +37,7 @@ export const experience: Experience[] = [
   },
   {
     title: "Full Stack Developer",
-    company: "Software Solutions Company",
+    company: "Bitsol Technologies",
     location: "Islamabad, Pakistan",
     period: "Jun 2019 - Jan 2023",
     duration: "3 years, 8 months",

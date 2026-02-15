@@ -3,7 +3,13 @@
  * Tracks Core Web Vitals for performance optimization
  */
 
-import { Metric } from 'web-vitals';
+interface Metric {
+  name: string;
+  value: number;
+  rating: 'good' | 'needs-improvement' | 'poor';
+  delta: number;
+  id: string;
+}
 
 /**
  * Report Web Vitals to analytics
