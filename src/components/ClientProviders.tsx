@@ -5,7 +5,6 @@ import { CustomCursor } from "@/components/CustomCursor";
 import { PerformanceMonitorComponent } from "@/components/PerformanceMonitor";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { SectionNav } from "@/components/SectionNav";
-import { WeatherHUD } from "@/components/WeatherHUD";
 import LogRocket from "logrocket";
 import dynamic from "next/dynamic";
 import { useEffect } from "react";
@@ -41,7 +40,6 @@ export function ClientProviders() {
       <ScrollProgress />
       <SectionNav />
       <AvailabilityBadge />
-      <WeatherHUD />
     </>
   );
 }
