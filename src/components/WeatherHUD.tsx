@@ -10,16 +10,6 @@ interface WeatherData {
   code: number;
 }
 
-function getConditionLabel(code: number): string {
-  if (code === 0) return "CLEAR";
-  if (code <= 3) return "PTLY_CLDY";
-  if (code <= 48) return "FOG";
-  if (code <= 57) return "DRIZZLE";
-  if (code <= 67) return "RAIN";
-  if (code <= 77) return "SNOW";
-  if (code <= 82) return "SHOWERS";
-  return "STORM";
-}
 
 function getConditionSymbol(code: number): string {
   if (code === 0) return "○";
@@ -48,23 +38,15 @@ export function WeatherHUD() {
           return;
         }
 
-        const geo = await fetch("https://ipapi.co/json/").then(r => r.json());
-        if (cancelled || !geo.latitude) { setLoading(false); return; }
-
-        const wx = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${geo.latitude}&longitude=${geo.longitude}&current_weather=true`
-        ).then(r => r.json());
+        const res = await fetch("/api/weather");
         if (cancelled) return;
+        if (!res.ok) { setLoading(false); return; }
 
-        const result: WeatherData = {
-          temp: Math.round(wx.current_weather.temperature),
-          city: geo.city || geo.country_name || "Unknown",
-          condition: getConditionLabel(wx.current_weather.weathercode),
-          code: wx.current_weather.weathercode,
-        };
+        const data = await res.json();
+        if (cancelled || data.error) { setLoading(false); return; }
 
-        sessionStorage.setItem("portfolio_weather", JSON.stringify(result));
-        setWeather(result);
+        sessionStorage.setItem("portfolio_weather", JSON.stringify(data));
+        setWeather(data);
       } catch {
         // silently fail — weather is an optional UI enhancement
       } finally {
