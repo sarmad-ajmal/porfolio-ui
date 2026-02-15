@@ -11,50 +11,32 @@ function getConditionLabel(code: number): string {
   return "STORM";
 }
 
-function isPrivateIp(ip: string): boolean {
-  return (
-    ip === "127.0.0.1" ||
-    ip === "::1" ||
-    ip.startsWith("192.168.") ||
-    ip.startsWith("10.") ||
-    ip.startsWith("172.")
-  );
-}
-
 export async function GET(request: NextRequest) {
   try {
-    // Extract real client IP set by Vercel / reverse proxies
-    const forwarded = request.headers.get("x-forwarded-for");
-    const clientIp = forwarded ? forwarded.split(",")[0].trim() : null;
+    // Vercel injects these headers automatically — no external geolocation API needed
+    const lat = request.headers.get("x-vercel-ip-latitude");
+    const lon = request.headers.get("x-vercel-ip-longitude");
+    const rawCity = request.headers.get("x-vercel-ip-city");
+    const country = request.headers.get("x-vercel-ip-country");
 
-    const geoUrl =
-      clientIp && !isPrivateIp(clientIp)
-        ? `https://ipapi.co/${clientIp}/json/`
-        : "https://ipapi.co/json/";
-
-    const geo = await fetch(geoUrl).then((r) => r.json());
-
-    if (!geo.latitude) {
+    if (!lat || !lon) {
       return NextResponse.json({ error: "Geolocation unavailable" }, { status: 503 });
     }
 
     const wx = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${geo.latitude}&longitude=${geo.longitude}&current_weather=true`
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`
     ).then((r) => r.json());
+
+    const city = rawCity ? decodeURIComponent(rawCity) : (country ?? "Unknown");
 
     return NextResponse.json(
       {
         temp: Math.round(wx.current_weather.temperature),
-        city: geo.city || geo.country_name || "Unknown",
+        city,
         condition: getConditionLabel(wx.current_weather.weathercode),
         code: wx.current_weather.weathercode,
       },
-      {
-        headers: {
-          // Don't cache — each visitor has a different location
-          "Cache-Control": "no-store",
-        },
-      }
+      { headers: { "Cache-Control": "no-store" } }
     );
   } catch {
     return NextResponse.json({ error: "Weather fetch failed" }, { status: 503 });
