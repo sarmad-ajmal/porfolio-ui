@@ -26,7 +26,7 @@ export function Contact() {
     <section
       id="contact"
       ref={ref}
-      className="py-24 px-8 md:px-16 lg:px-24 relative overflow-hidden"
+      className="py-12 px-8 md:px-16 lg:px-24 relative overflow-hidden"
       style={{ background: "var(--t-bg)" }}
     >
       {/* Radial spotlight behind ASCII art */}
@@ -44,8 +44,8 @@ export function Contact() {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <div className="mb-12">
-            <div className="flex items-center gap-4 mb-6">
+          <div className="mb-4">
+            <div className="flex items-center gap-4 mb-4">
               <span className="t-section-header">[06 — CONTACT]</span>
               <div className="flex-1 h-px" style={{ background: "var(--t-border)" }} />
             </div>
@@ -54,7 +54,7 @@ export function Contact() {
 
         {/* Big headline — the dramatic centerpiece */}
         <motion.h2
-          className="text-center mb-12 font-mono font-black text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tighter select-none"
+          className="text-center mb-6 font-mono font-black text-3xl sm:text-4xl md:text-5xl tracking-tighter select-none"
           style={{
             color: "var(--t-cyan)",
             textShadow: "0 0 40px rgba(0,229,255,0.3), 0 0 80px rgba(0,229,255,0.1)",
@@ -68,7 +68,7 @@ export function Contact() {
         </motion.h2>
 
         <motion.p
-          className="t-section-subtitle text-center max-w-lg mx-auto mb-16"
+          className="t-section-subtitle text-center max-w-lg mx-auto mb-6"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ delay: 0.5 }}
@@ -79,7 +79,7 @@ export function Contact() {
 
         {/* Terminal-style connection prompt */}
         <motion.div
-          className="t-card mb-12"
+          className="t-card mb-6"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.3 }}
@@ -150,7 +150,7 @@ export function Contact() {
 
         {/* Resume download — styled as a wget command */}
         <motion.div
-          className="text-center mb-8"
+          className="text-center mb-4"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.6 }}
